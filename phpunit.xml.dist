@@ -8,6 +8,7 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
+         syntaxCheck="false"
 >
     <testsuites>
         <testsuite name="Code Profiles Test Suite">
@@ -16,9 +17,17 @@
     </testsuites>
 
     <filter>
+    	<blacklist>
+    		<directory>tests/</directory>
+    		<directory>vendor/</directory>
+    	</blacklist>
     	<whitelist processUncoveredFilesFromWhitelist="true">
     		<directory suffix=".php">src/</directory>
     	</whitelist>
     </filter>
+    
+    <!--<logging>
+		<log type="coverage-html" target="coverage"/>
+	</logging>-->
     
 </phpunit>

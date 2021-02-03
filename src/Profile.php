@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 namespace gossi\code\profiles;
 
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Definition\Processor;
 
 class Profile {
 
-	/** @var array */
 	private $config;
 
-	public function __construct(string $profile = 'default') {
+	public function __construct($profile = null) {
 		$profileDir = __DIR__ . '/../profiles';
 
 		$locator = new FileLocator([$profileDir]);
@@ -26,7 +25,7 @@ class Profile {
 		}
 
 		if (!empty($profile) && !$isBuiltin && file_exists($profile)) {
-			$profiles[] = $loader->load($profile);
+			$profiles[] = $loader->load(file_get_contents($profile));
 		}
 
 		$processor = new Processor();
@@ -34,7 +33,7 @@ class Profile {
 		$this->config = $processor->processConfiguration($definition, $profiles);
 	}
 
-	private function readProfiles(YamlLoader $loader, string $profileDir): array {
+	private function readProfiles(YamlLoader $loader, $profileDir) {
 		$profiles = [];
 		foreach (new \DirectoryIterator($profileDir) as $file) {
 			if ($file->isFile() && $loader->supports($file->getFilename())) {
@@ -45,39 +44,46 @@ class Profile {
 		return $profiles;
 	}
 
-	public function getConfig(): array {
+	public function getConfig() {
 		return $this->config;
 	}
 
-	public function getIndentation(string $key): string {
-		return $this->config['indentation'][$key] ?? '';
+	public function getIndentation($key) {
+		if (isset($this->config['indentation'][$key])) {
+			return $this->config['indentation'][$key];
+		}
 	}
 
-	public function getBraces(string $key): string {
-		return $this->config['braces'][$key] ?? '';
+	public function getBraces($key) {
+		if (isset($this->config['braces'][$key])) {
+			return $this->config['braces'][$key];
+		}
 	}
 
-	public function getWhitespace(string $key, string $context = 'default'): bool {
+	public function getWhitespace($key, $context = 'default') {
 		if (isset($this->config['whitespace'][$context][$key])) {
 			$val = $this->config['whitespace'][$context][$key];
 
 			if ($val === 'default' && $context !== 'default') {
 				return $this->getWhitespace($key);
 			}
-
-			return (bool) $val;
-		} elseif ($context !== 'default') { // workaround?
+			return $val;
+		} else if ($context !== 'default') { // workaround?
 			return $this->getWhitespace($key);
 		}
-
 		return false;
 	}
 
-	public function getBlanks(string $key): int {
-		return $this->config['blanks'][$key] ?? 0;
+	public function getBlanks($key) {
+		if (isset($this->config['blanks'][$key])) {
+			return $this->config['blanks'][$key];
+		}
+		return 0;
 	}
 
-	public function getNewline(string $key): bool {
-		return $this->config['newlines'][$key] ?? false;
+	public function getNewline($key) {
+		if (isset($this->config['newlines'][$key])) {
+			return $this->config['newlines'][$key];
+		}
 	}
 }

@@ -1,6 +1,5 @@
 .buildpath
 composer.lock
-*.cache
 vendor/
 coverage/
 cache/
